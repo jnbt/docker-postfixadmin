@@ -1,5 +1,5 @@
 NAME=postfixadmin
-VERSION=2.93.1
+VERSION=3.0
 
 build:
 	docker build -t ${NAME} .
