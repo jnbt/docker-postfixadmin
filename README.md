@@ -31,13 +31,13 @@ import, but you might need to run the `app:init` more then once!
 
 ### MySQL
 
-The typical environment variables for MySQL are available:
+The default configuration for MySQL is:
 
 ```
--e MYSQL_HOST=postfixadmin
--e MYSQL_USER=postfixadmin
--e MYSQL_DATABASE=postfixadmin
--e MYSQL_PASSWORD=postfixadmin
+-e MYSQL_HOST=mysql
+-e MYSQL_USER=postfix
+-e MYSQL_DATABASE=postfix
+-e MYSQL_PASSWORD=postfix
 ```
 
 ### Postfixadmin via environment variables
