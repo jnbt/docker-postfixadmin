@@ -35,7 +35,7 @@ wait_for_php() {
 }
 
 init_config() {
-  mkdir /config
+  mkdir -p /config
   echo "<?php">/config/__config.php
   for e in $(env); do
     case $e in
@@ -54,9 +54,7 @@ patch_upgrade() {
   sed -i 's/0000-00-00/2001-01-01/g' /www/upgrade.php
 }
 
-init_db() {
-  : "${ADMIN_USERNAME?Need to set ADMIN_USERNAME}"
-  : "${ADMIN_PASSWORD?Need to set ADMIN_PASSWORD}"
+init_or_upgrade_db() {
   SETUP_PASSWORD="${SETUP_PASSWORD:-s3cr3t}"
 
   salt=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 32 | head -n 1)
@@ -68,21 +66,21 @@ init_db() {
   wait_for_php
   pid_php=$!
 
-  curl --silent --output /dev/null http://localhost/setup.php
-  curl --silent --output /dev/null --data "form=createadmin&setup_password=$SETUP_PASSWORD&username=$ADMIN_USERNAME&password=$ADMIN_PASSWORD&password2=$ADMIN_PASSWORD" http://localhost/setup.php
+  if [ $1 = "init" ]; then
+    : "${ADMIN_USERNAME?Need to set ADMIN_USERNAME}"
+    : "${ADMIN_PASSWORD?Need to set ADMIN_PASSWORD}"
+    echo "[INFO] Creating database"
+    curl --silent --output /dev/null http://localhost/setup.php
+    echo "[INFO] Creating admin user"
+    curl --silent --output /dev/null --data "form=createadmin&setup_password=$SETUP_PASSWORD&username=$ADMIN_USERNAME&password=$ADMIN_PASSWORD&password2=$ADMIN_PASSWORD" http://localhost/setup.php
+  else
+    echo "[INFO] Updating database (if needed)"
+    curl --silent --output /dev/null http://localhost/setup.php
+  fi
+
   kill $pid_php
   wait $pid_php 2>/dev/null || true
   rm -rf /www/setup.php /config/___setup_password.php
-}
-
-upgrade_db() {
-  $cmd_php &
-  wait_for_php
-  pid_php=$!
-
-  curl --silent --output /dev/null http://localhost/upgrade.php
-  kill $pid_php
-  wait $pid_php 2>/dev/null || true
 }
 
 start_server() {
@@ -101,16 +99,16 @@ case ${1} in
     ;;
   app:init|app:start)
     wait_for_mysql
+    patch_upgrade
     init_config
 
     case ${1} in
       app:start)
-        upgrade_db
+        init_or_upgrade_db "upgrade"
         start_server
         ;;
       app:init)
-        patch_upgrade
-        init_db
+        init_or_upgrade_db "init"
         ;;
     esac
     ;;
