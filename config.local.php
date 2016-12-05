@@ -8,6 +8,11 @@ $CONF['database_name'] = getenv('MYSQL_DATABASE');
 $CONF['dovecotpw'] = "/usr/bin/doveadm pw";
 
 require_once '/config/__config.php';
+
+if (is_file('/config/___setup_password.php')) {
+  require_once '/config/___setup_password.php';
+}
+
 foreach (glob('/config/custom/*.php') as $f) {
   require_once $f;
 }

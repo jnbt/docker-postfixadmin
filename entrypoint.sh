@@ -35,6 +35,7 @@ wait_for_php() {
 }
 
 init_config() {
+  mkdir /config
   echo "<?php">/config/__config.php
   for e in $(env); do
     case $e in
@@ -58,14 +59,16 @@ init_db() {
   : "${ADMIN_PASSWORD?Need to set ADMIN_PASSWORD}"
   SETUP_PASSWORD="${SETUP_PASSWORD:-s3cr3t}"
 
-  $cmd_php &
-  wait_for_php
-  pid_php=$!
-
   salt=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 32 | head -n 1)
   password_hash=$(echo -n "$salt:$SETUP_PASSWORD" | sha1sum | cut -d ' ' -f 1)
   setup_password_hash="$salt:$password_hash"
   echo "<?php \$CONF['setup_password'] = '$setup_password_hash'; ?>">/config/___setup_password.php
+
+  $cmd_php &
+  wait_for_php
+  pid_php=$!
+
+  curl --silent --output /dev/null http://localhost/setup.php
   curl --silent --output /dev/null --data "form=createadmin&setup_password=$SETUP_PASSWORD&username=$ADMIN_USERNAME&password=$ADMIN_PASSWORD&password2=$ADMIN_PASSWORD" http://localhost/setup.php
   kill $pid_php
   wait $pid_php 2>/dev/null || true
