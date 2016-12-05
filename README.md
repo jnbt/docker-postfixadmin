@@ -77,7 +77,7 @@ $CONF['default_aliases'] = array (
 ## Software
 
 * [alpine:3.4](https://hub.docker.com/_/alpine)
-* [Postfixadmin 2.9.3](http://postfixadmin.sourceforge.net)
+* [Postfixadmin 3.0](http://postfixadmin.sourceforge.net)
 
 ## Release
 
