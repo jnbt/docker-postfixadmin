@@ -9,7 +9,7 @@ ENV POSTFIXADMIN_PACKAGE postfixadmin-$POSTFIXADMIN_VERSION
 ENV POSTFIXADMIN_DOWNLOAD https://downloads.sourceforge.net/project/postfixadmin/postfixadmin/postfixadmin-$POSTFIXADMIN_VERSION/$POSTFIXADMIN_PACKAGE.tar.gz
 
 # Hint: dovecot is needed for `doveadm pw`
-RUN apk add --no-cache bash curl dovecot mysql-client php5-imap php5-mysqli \
+RUN apk add --no-cache bash curl dovecot mysql-client php5-imap php5-mysqli php5-phar php5-openssl\
  && curl -L "$POSTFIXADMIN_DOWNLOAD" | tar xzf - \
  && mv "$POSTFIXADMIN_PACKAGE" "$POSTFIXADMIN_DIR" \
  && mkdir -p $POSTFIXADMIN_DIR/config/custom

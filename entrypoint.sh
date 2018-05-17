@@ -3,7 +3,7 @@ set -e
 
 [[ $DEBUG == true ]] && set -x
 
-cmd_php="php -S 0.0.0.0:80 -c /php.ini -t /www"
+cmd_php="php -S 0.0.0.0:80 -c /php.ini -t /www/public"
 
 export MYSQL_HOST
 export MYSQL_USER
@@ -51,7 +51,7 @@ init_config() {
 patch_upgrade() {
   # The postfixadmin SQL statements use invalid default values for dates
   # which are not allowed in SQL strict mode
-  sed -i 's/0000-00-00/2001-01-01/g' /www/upgrade.php
+  sed -i 's/0000-00-00/2001-01-01/g' /www/public/upgrade.php
 }
 
 init_or_upgrade_db() {
@@ -80,12 +80,12 @@ init_or_upgrade_db() {
 
   kill $pid_php
   wait $pid_php 2>/dev/null || true
-  rm -rf /www/setup.php /config/___setup_password.php
+  rm -rf /www/public/setup.php /config/___setup_password.php
 }
 
 start_server() {
   echo "[INFO] Starting server"
-  rm -rf /www/setup.php /config/___setup_password.php
+  rm -rf /www/public/setup.php /config/___setup_password.php
   exec $cmd_php
 }
 
